@@ -40,7 +40,8 @@ export function DashboardNavbar() {
     >
       <div className="flex  justify-end gap-6 md:flex-row md:items-center">
         <div className="flex items-center">
-          <Button className="me-5 lg:me-0">Connect Wallet</Button>
+          {/* <Button className="me-5 lg:me-0">Connect Wallet</Button> */}
+          <w3m-button />
           <IconButton
             variant="text"
             color="blue-gray"
