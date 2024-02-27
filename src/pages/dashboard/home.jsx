@@ -133,7 +133,7 @@ export function Home() {
             {
               transferFrom === "1" ? (
                 <div className="mb-4 flex items-center justify-center space-x-4">
-                  <Button variant="outlined" onClick={handleHomeTransaction}>Bridge</Button>
+                  <Button disabled={isPending} variant="outlined" onClick={handleHomeTransaction}>{isPending ? 'Confirming...' : 'Bridge'} </Button>
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center mb-4">
