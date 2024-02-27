@@ -81,9 +81,8 @@ export function Home() {
   }
 
   const handleHomeTransaction = async () => {
-    console.log(chainId === import.meta.env.VITE_HOME_CHAIN_CHAINID)
     if(!isErrorTxt && !isErrorTransferFrom && !isErrorTransferTo) {
-      if(chainId == import.meta.env.VITE_HOME_CHAIN_CHAINID) {
+      if(parseInt(chainId) === parseInt(import.meta.env.VITE_HOME_CHAIN_CHAINID)) {
         sendTransaction({ to: import.meta.env.VITE_HOME_CONTRACT_ADDRESS, value: parseEther(amount) })
       }
     } 
