@@ -1,4 +1,5 @@
 import { Routes, Route } from "react-router-dom";
+import { Toaster } from 'react-hot-toast';
 import {
   Sidenav,
   DashboardNavbar,
@@ -34,6 +35,7 @@ export function Dashboard() {
           <Footer />
         </div>
       </div>
+      <Toaster />
     </div>
   );
 }

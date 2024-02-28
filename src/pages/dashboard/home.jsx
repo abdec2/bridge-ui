@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Typography,
   Card,
@@ -7,90 +7,40 @@ import {
   Select, 
   Option,
   Input,
-  Button
+  Button,
+  Spinner 
   
 } from "@material-tailwind/react";
-import {
-  EllipsisVerticalIcon,
-  ArrowUpIcon,
-} from "@heroicons/react/24/outline";
-import { StatisticsCard } from "@/widgets/cards";
-import { StatisticsChart } from "@/widgets/charts";
-import {
-  statisticsCardsData,
-  statisticsChartsData,
-  projectsTableData,
-  ordersOverviewData,
-} from "@/data";
-import { CheckCircleIcon, ClockIcon } from "@heroicons/react/24/solid";
-import { 
-  useAccount,
-  useChainId,
-  useSendTransaction,
-  useWaitForTransactionReceipt
-} from 'wagmi'
-import { parseEther } from 'viem'
+import toast from "react-hot-toast";
+import { useTransactions } from "@/hooks/myhooks";
 
 export function Home() {
-  const regexp = /^\d+(\.\d{1,18})?$/;
-  const [transferFrom, setTransferFrom] = useState('');
-  const [transferTo, setTransferTo] = useState('');
-  const [contractAddress, setContractAddress] = useState('')
-  const { address, isConnecting, isDisconnected } = useAccount()
-  const chainId = useChainId()
-
-  const [amount, setAmount] = useState('');
-
-  const isErrorTxt = amount === '' || !regexp.test(amount)
-  const isErrorTransferFrom = transferFrom === ''
-  const isErrorTransferTo = transferTo === ''
-
   const { 
-    data: hash, 
-    isPending, 
-    sendTransaction 
-  } = useSendTransaction() 
+    transferFrom,
+    transferTo,
+    amount, 
+    setAmount,
+    isErrorTxt,
+    isErrorTransferFrom,
+    isErrorTransferTo,
+    isPending,
+    approvePending,
+    isConfirming,
+    isConfirmed,
+    HandleTransferFromChange,
+    HandleTransferToChange,
+    handleHomeTransaction,
+    handleApproveForiegn,
+    handleForiegnTransaction
+} = useTransactions()
+  
 
-  const { isLoading: isConfirming, isSuccess: isConfirmed } = 
-    useWaitForTransactionReceipt({ 
-      hash, 
-  })
-
-  const HandleTransferFromChange = (e) => {
-    const value = e
-    if(value === '1') {
-      setTransferFrom('1')
-      setTransferTo('2')
-    } else {
-      setTransferFrom('2')
-      setTransferTo('1')
+  useEffect(() => {
+    if(isConfirmed) {
+      toast.success('Transaction confirmed successfully')
     }
-    
-  }
 
-  const HandleTransferToChange = (e) => {
-    const value = e
-    if(value === '1') {
-      setTransferTo('1')
-      setTransferFrom('2')
-    } else {
-      setTransferTo('2')
-      setTransferFrom('1')
-    }
-    
-  }
-
-  const handleHomeTransaction = async () => {
-    if(!isErrorTxt && !isErrorTransferFrom && !isErrorTransferTo) {
-      if(parseInt(chainId) === parseInt(import.meta.env.VITE_HOME_CHAIN_CHAINID)) {
-        sendTransaction({ to: import.meta.env.VITE_HOME_CONTRACT_ADDRESS, value: parseEther(amount) })
-      }
-    } 
-  }
-
-  const handleForiegnTransaction = async () => {
-    
-  }
+  }, [isConfirmed])
   
 
   return (
@@ -127,19 +77,46 @@ export function Home() {
             </div>
 
             <div className="mt-8 mb-4">
-              <Input size="lg" label="Amount" error={isErrorTxt} onChange={(e) => setAmount(e.target.value)}/>
+              <Input size="lg" label="Amount" value={amount} error={isErrorTxt} onChange={(e) => setAmount(e.target.value)}/>
             </div>
 
             {
               transferFrom === "1" ? (
                 <div className="mb-4 flex items-center justify-center space-x-4">
-                  <Button disabled={isPending} variant="outlined" onClick={handleHomeTransaction}>{isPending ? 'Confirming...' : 'Bridge'} </Button>
+                  <Button disabled={isPending} variant="outlined" onClick={handleHomeTransaction}>
+                    {
+                      isPending ? (
+                        <div className="flex items-center justify-between">
+                          <span>Confirming...</span>
+                          <Spinner />
+                        </div>
+                      ) : isConfirming ? (
+                          <div className="flex items-center justify-between">
+                            <span>Confirming...</span>
+                            <Spinner />
+                          </div>
+                      ) : (
+                        <span>Bridge</span>
+                      )
+                    } 
+                  </Button>
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center mb-4">
                   <div className="flex items-center justify-center space-x-4">
-                    <Button variant="gradient">Approve</Button>
-                    <Button variant="outlined">Bridge</Button>
+                    <Button disabled={approvePending} variant="gradient" onClick={handleApproveForiegn}>
+                      {
+                        approvePending ? (
+                          <div className="flex items-center justify-between">
+                            <span>Confirming...</span>
+                            <Spinner />
+                          </div>
+                        ) : (
+                          <span>Approve</span>
+                        )
+                      } 
+                    </Button>
+                    <Button variant="outlined" onClick={handleForiegnTransaction}>Bridge</Button>
                   </div>
                   <small className="mt-1 text-xs">First Approve then click on bridge..</small>
                 </div>
