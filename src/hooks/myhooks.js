@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ChildToken from './../abi/childToken.json'
+import SideBridge from './../abi/foriegnBridge.json'
 
 import { 
     useAccount,
@@ -24,6 +25,7 @@ export const useTransactions = () => {
     const [transferTo, setTransferTo] = useState('');
     const [contractAddress, setContractAddress] = useState('')
     const [approvePending, setApprovePending] = useState(false)
+    const [returnLoading, setReturnLoading ] = useState(false)
     const { address, isConnecting, isConnected } = useAccount()
     const { chains, switchChain } = useSwitchChain()
     const config = useConfig()
@@ -108,30 +110,20 @@ export const useTransactions = () => {
                         address: import.meta.env.VITE_CHILD_TOKEN_ADDRESS,
                         abi: ChildToken,
                         functionName: 'approve',
-                        args: [import.meta.env.VITE_FORIEGN_CONTRACT_ADDRESS ,parseEther(amount)], 
-                        onSuccess: (data) => {
-                            toast.success('Transaction confirmed successfully')
-                        }, 
-                        onError: (data) => {
-                            toast.error('Transaction failed')
-                        }
+                        args: [import.meta.env.VITE_FORIEGN_CONTRACT_ADDRESS ,parseEther(amount)]
                     })
                     console.log(tx)
                     const result = await waitForTransactionReceipt(config, {
-                        hash: tx.hash
+                        hash: tx
                     })
                     console.log(result)
+                    toast.success('Transaction confirmed successfully')
                     setApprovePending(false)
                 } catch(e) {
                     console.log(e)
                     setApprovePending(false)
+                    toast.error('Transaction failed')
                 }
-                // approve({
-                //     address: import.meta.env.VITE_CHILD_TOKEN_ADDRESS,
-                //     abi: ChildToken,
-                //     functionName: 'approve',
-                //     args: [import.meta.env.VITE_FORIEGN_CONTRACT_ADDRESS ,parseEther(amount)]
-                // })
             } else {
                 switchChain({chainId: parseInt(import.meta.env.VITE_FORIEGN_CHAIN_CHAINID)})
             }
@@ -147,8 +139,31 @@ export const useTransactions = () => {
         }
         if(!isErrorTxt && !isErrorTransferFrom && !isErrorTransferTo) {
             if(parseInt(chainId) === parseInt(import.meta.env.VITE_FORIEGN_CHAIN_CHAINID)) {
-            
+                try {
+                    setReturnLoading(true)
+                    const tx = await writeContract(config, {
+                        address: import.meta.env.VITE_FORIEGN_CONTRACT_ADDRESS,
+                        abi: SideBridge,
+                        functionName: 'returnTokens',
+                        args: [address ,parseEther(amount)]
+                    })
+                    console.log(tx)
+                    const result = await waitForTransactionReceipt(config, {
+                        hash: tx
+                    })
+                    console.log(result)
+                    toast.success('Transaction confirmed successfully')
+                    setReturnLoading(false)
+                } catch(e) {
+                    console.log(e)
+                    setReturnLoading(false)
+                    toast.error('Transaction failed')
+                }
+            } else {
+                switchChain({chainId: parseInt(import.meta.env.VITE_FORIEGN_CHAIN_CHAINID)})
             }
+        } else {
+            toast.error('Please fill all fields..')
         }
     }
 
@@ -169,7 +184,8 @@ export const useTransactions = () => {
         HandleTransferToChange,
         handleHomeTransaction,
         handleApproveForiegn,
-        handleForiegnTransaction
+        handleForiegnTransaction,
+        returnLoading
     }
 
 }

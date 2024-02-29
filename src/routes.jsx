@@ -19,12 +19,12 @@ export const routes = [
         element: <Home />,
       },
 
-      {
-        icon: <TableCellsIcon {...icon} />,
-        name: "transactions",
-        path: "/transactions",
-        element: <Tables />,
-      }
+      // {
+      //   icon: <TableCellsIcon {...icon} />,
+      //   name: "transactions",
+      //   path: "/transactions",
+      //   element: <Tables />,
+      // }
     ],
   },
   

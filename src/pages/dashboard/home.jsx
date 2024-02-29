@@ -31,7 +31,8 @@ export function Home() {
     HandleTransferToChange,
     handleHomeTransaction,
     handleApproveForiegn,
-    handleForiegnTransaction
+    handleForiegnTransaction,
+    returnLoading
 } = useTransactions()
   
 
@@ -116,7 +117,18 @@ export function Home() {
                         )
                       } 
                     </Button>
-                    <Button variant="outlined" onClick={handleForiegnTransaction}>Bridge</Button>
+                    <Button disabled={returnLoading}  variant="outlined" onClick={handleForiegnTransaction}>
+                      {
+                        returnLoading ? (
+                          <div className="flex items-center justify-between">
+                            <span>Confirming...</span>
+                            <Spinner />
+                          </div>
+                        ) : (
+                          <span>Bridge</span>
+                        )
+                      }
+                    </Button>
                   </div>
                   <small className="mt-1 text-xs">First Approve then click on bridge..</small>
                 </div>
