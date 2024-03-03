@@ -9,12 +9,14 @@ import {
     useWaitForTransactionReceipt,
     useWriteContract,
     useSwitchChain,
-    useConfig 
+    useConfig, 
+    usePublicClient 
   } from 'wagmi'
   import { parseEther } from 'viem'
 import toast from "react-hot-toast";
 
 import { writeContract, waitForTransactionReceipt  } from '@wagmi/core'
+import { getBalance } from "viem/actions";
 
 
 
@@ -29,6 +31,7 @@ export const useTransactions = () => {
     const { address, isConnecting, isConnected } = useAccount()
     const { chains, switchChain } = useSwitchChain()
     const config = useConfig()
+    const provider = usePublicClient()
 
     const chainId = useChainId()
 
@@ -82,8 +85,14 @@ export const useTransactions = () => {
     }
     
     const handleHomeTransaction = async () => {
+       
         if(!isConnected) {
             toast.error('Connect you wallet..')
+            return
+        }
+        const balance = await checkAccountBalance() 
+        if(parseInt(balance) === 0) {
+            toast.error('Insufficient Balance..')
             return
         }
         if(!isErrorTxt && !isErrorTransferFrom && !isErrorTransferTo) {
@@ -100,6 +109,11 @@ export const useTransactions = () => {
     const handleApproveForiegn = async () => {
         if(!isConnected) {
             toast.error('Connect you wallet..')
+            return
+        }
+        const balance = await checkAccountBalance() 
+        if(parseInt(balance) === 0) {
+            toast.error('Insufficient Balance..')
             return
         }
         if(!isErrorTxt && !isErrorTransferFrom && !isErrorTransferTo) {
@@ -137,6 +151,11 @@ export const useTransactions = () => {
             toast.error('Connect you wallet..')
             return
         }
+        const balance = await checkAccountBalance() 
+        if(parseInt(balance) === 0) {
+            toast.error('Insufficient Balance..')
+            return
+        }
         if(!isErrorTxt && !isErrorTransferFrom && !isErrorTransferTo) {
             if(parseInt(chainId) === parseInt(import.meta.env.VITE_FORIEGN_CHAIN_CHAINID)) {
                 try {
@@ -165,6 +184,17 @@ export const useTransactions = () => {
         } else {
             toast.error('Please fill all fields..')
         }
+    }
+
+    const checkAccountBalance = async () => {
+        if(!isConnected) {
+            toast.error('Connect you wallet..')
+            return 
+        }
+
+        const balance = await getBalance(provider, {address})
+        console.log(balance.toString())
+        return balance.toString()
     }
 
 

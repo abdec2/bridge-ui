@@ -5,8 +5,10 @@ import { createWeb3Modal } from '@web3modal/wagmi/react'
 import { defaultWagmiConfig } from '@web3modal/wagmi/react/config'
 
 import { WagmiProvider } from 'wagmi'
-import { polygonMumbai, bscTestnet } from 'wagmi/chains'
+import { bsc } from 'wagmi/chains'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+
+import { bondzMainnet } from './bondzMainnet'
 
 // 0. Setup queryClient
 const queryClient = new QueryClient()
@@ -22,7 +24,7 @@ const metadata = {
   icons: ['https://avatars.githubusercontent.com/u/37784886']
 }
 
-const chains = [polygonMumbai, bscTestnet]
+const chains = [bondzMainnet, bsc]
 const config = defaultWagmiConfig({
   chains, // required
   projectId, // required
